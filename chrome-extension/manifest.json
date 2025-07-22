@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Tekcop",
+  "version": "1.0.0",
+  "description": "Tekcop this page!",
+  "action": {
+    "default_icon": {
+      "16": "app_16.png",
+      "32": "app_32.png",
+      "48": "app_48.png",
+      "128": "app_128.png"
+    },
+    "default_title": "Save to Tekcop",
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "host_permissions": [
+    "<all_urls>"
+  ]
+} 

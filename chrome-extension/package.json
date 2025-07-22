@@ -1,0 +1,11 @@
+{
+  "name": "tekcop-extension",
+  "version": "1.0.0",
+  "description": "Tekcop Chrome extension to save bookmarks.",
+  "main": "build.cjs",
+  "scripts": {
+    "build": "node build.cjs",
+    "clean": "rm -rf dist"
+  },
+  "license": "MIT"
+} 

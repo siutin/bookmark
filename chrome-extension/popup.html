@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tekcop Login</title>
+  <style>
+    body { font-family: sans-serif; min-width: 220px; padding: 16px; }
+    input { width: 100%; margin-bottom: 8px; padding: 6px; }
+    button { width: 100%; padding: 8px; background: #ef4056; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    #status { margin-top: 10px; font-size: 0.95em; }
+  </style>
+</head>
+<body>
+  <div id="login-section">
+    <h3>Tekcop Login</h3>
+    <input id="username" type="text" placeholder="Username" autocomplete="username">
+    <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+    <button id="loginBtn">Login</button>
+  </div>
+  <div id="bookmark-section" style="display:none;">
+    <h3>Tekcop</h3>
+    <button id="saveBookmarkBtn">Save This Page</button>
+    <button id="logoutBtn" style="margin-top:8px;background:#888;">Logout</button>
+    <div id="bookmark-status"></div>
+  </div>
+  <div id="status"></div>
+  <script src="popup.js"></script>
+</body>
+</html> 
