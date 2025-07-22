@@ -1,22 +1,17 @@
 import React, { useEffect, useState } from 'react';
-
-interface Bookmark {
-  id: number;
-  title: string;
-  url: string;
-  description?: string;
-  previewUrl?: string;
-  created_at: string;
-  updated_at: string;
-}
+import {
+  fetchBookmarks as apiFetchBookmarks,
+  createBookmark as apiCreateBookmark,
+  updateBookmark as apiUpdateBookmark,
+  deleteBookmark as apiDeleteBookmark,
+} from './api';
+import type { Bookmark } from './api';
 
 interface BookmarksPageProps {
   token: string;
   setToken: (token: string) => void;
   version?: string;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8787';
 
 const BookmarksPage: React.FC<BookmarksPageProps> = ({ token, setToken, version }) => {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
@@ -41,23 +36,15 @@ const BookmarksPage: React.FC<BookmarksPageProps> = ({ token, setToken, version 
   const fetchBookmarks = () => {
     setLoading(true);
     setError(null);
-    fetch(`${API_BASE}/api/bookmarks`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(async r => {
-        if (r.status === 401) {
-          setToken('');
-          localStorage.removeItem('jwt_token');
-          throw new Error('Unauthorized');
-        }
-        return r.json();
-      })
+    apiFetchBookmarks(token)
       .then(data => setBookmarks(data))
       .catch((err) => {
         if (err.message === 'Unauthorized') {
+          setToken('');
+          localStorage.removeItem('jwt_token');
           setError('Session expired. Please log in again.');
         } else {
-          setError('Failed to load bookmarks');
+          setError(err.message || 'Failed to load bookmarks');
         }
       })
       .finally(() => setLoading(false));
@@ -73,26 +60,9 @@ const BookmarksPage: React.FC<BookmarksPageProps> = ({ token, setToken, version 
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const method = selected ? 'PATCH' : 'POST';
-    const url = selected
-      ? `${API_BASE}/api/bookmark/${selected.id}`
-      : `${API_BASE}/api/bookmarks`;
-    fetch(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(form)
-    })
-      .then(async r => {
-        if (r.status === 401) {
-          setToken('');
-          localStorage.removeItem('jwt_token');
-          throw new Error('Unauthorized');
-        }
-        return r.json();
-      })
+    (selected
+      ? apiUpdateBookmark(token, selected.id, form)
+      : apiCreateBookmark(token, form))
       .then(() => {
         setForm({});
         setSelected(null);
@@ -100,9 +70,11 @@ const BookmarksPage: React.FC<BookmarksPageProps> = ({ token, setToken, version 
       })
       .catch((err) => {
         if (err.message === 'Unauthorized') {
+          setToken('');
+          localStorage.removeItem('jwt_token');
           setError('Session expired. Please log in again.');
         } else {
-          setError('Failed to save bookmark');
+          setError(err.message || 'Failed to save bookmark');
         }
       })
       .finally(() => setLoading(false));
@@ -120,33 +92,22 @@ const BookmarksPage: React.FC<BookmarksPageProps> = ({ token, setToken, version 
   const saveEdit = async (bm: Bookmark) => {
     setLoading(true);
     setError(null);
-    try {
-      const res = await fetch(`${API_BASE}/api/bookmark/${bm.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(editForm),
-      });
-      if (res.status === 401) {
-        setToken('');
-        localStorage.removeItem('jwt_token');
-        throw new Error('Unauthorized');
-      }
-      if (!res.ok) throw new Error('Failed to update');
-      setEditingId(null);
-      setEditForm({});
-      fetchBookmarks();
-    } catch (err: any) {
-      if (err.message === 'Unauthorized') {
-        setError('Session expired. Please log in again.');
-      } else {
-        setError('Failed to update bookmark');
-      }
-    } finally {
-      setLoading(false);
-    }
+    apiUpdateBookmark(token, bm.id, editForm)
+      .then(() => {
+        setEditingId(null);
+        setEditForm({});
+        fetchBookmarks();
+      })
+      .catch((err) => {
+        if (err.message === 'Unauthorized') {
+          setToken('');
+          localStorage.removeItem('jwt_token');
+          setError('Session expired. Please log in again.');
+        } else {
+          setError(err.message || 'Failed to update bookmark');
+        }
+      })
+      .finally(() => setLoading(false));
   };
 
   // Handle delete
@@ -154,24 +115,15 @@ const BookmarksPage: React.FC<BookmarksPageProps> = ({ token, setToken, version 
     if (!window.confirm('Delete this bookmark?')) return;
     setLoading(true);
     setError(null);
-    fetch(`${API_BASE}/api/bookmark/${id}`, {
-      method: 'DELETE',
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(async r => {
-        if (r.status === 401) {
-          setToken('');
-          localStorage.removeItem('jwt_token');
-          throw new Error('Unauthorized');
-        }
-        return r;
-      })
+    apiDeleteBookmark(token, id)
       .then(() => fetchBookmarks())
       .catch((err) => {
         if (err.message === 'Unauthorized') {
+          setToken('');
+          localStorage.removeItem('jwt_token');
           setError('Session expired. Please log in again.');
         } else {
-          setError('Failed to delete bookmark');
+          setError(err.message || 'Failed to delete bookmark');
         }
       })
       .finally(() => setLoading(false));

@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
+import { login as apiLogin, register as apiRegister } from './api';
 
 interface AuthPageProps {
   setToken: (token: string) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
 }
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8787';
 
 const AuthPage: React.FC<AuthPageProps> = ({ setToken, loading, setLoading }) => {
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
@@ -72,37 +71,17 @@ const AuthPage: React.FC<AuthPageProps> = ({ setToken, loading, setLoading }) =>
     setLoading(true);
     try {
       if (authMode === 'register') {
-        const res = await fetch(`${API_BASE}/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: authUser, password: authPass, inviteCode: authInvite })
-        });
-        if (!res.ok) {
-          const data = await res.json();
-          setAuthError(data.error || 'Registration failed');
-          setLoading(false);
-          return;
-        }
+        await apiRegister(authUser, authPass, authInvite);
       }
       // Login
-      const res = await fetch(`${API_BASE}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: authUser, password: authPass })
-      });
-      const data = await res.json();
-      if (!res.ok || !data.token) {
-        setAuthError(data.error || 'Login failed');
-        setLoading(false);
-        return;
-      }
+      const data = await apiLogin(authUser, authPass);
       setToken(data.token);
       setAuthUser('');
       setAuthPass('');
       setAuthInvite('');
       setAuthError(null);
-    } catch (e) {
-      setAuthError('Network error');
+    } catch (e: any) {
+      setAuthError(e.message || 'Network error');
     } finally {
       setLoading(false);
     }
