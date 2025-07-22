@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import AuthPage from './AuthPage';
 import BookmarksPage from './BookmarksPage';
 
