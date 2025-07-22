@@ -2,10 +2,14 @@
   "name": "tekcop-extension",
   "version": "1.0.0",
   "description": "Tekcop Chrome extension to save bookmarks.",
-  "main": "build.cjs",
+  "main": "vite.config.js",
   "scripts": {
-    "build": "node build.cjs",
+    "build": "vite build",
     "clean": "rm -rf dist"
   },
+  "devDependencies": {
+    "vite": "^5.2.0",
+    "vite-plugin-static-copy": "^3.1.1"
+  },
   "license": "MIT"
-} 
+}
