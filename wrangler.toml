@@ -1,5 +1,5 @@
 name = "bookmark-front"
 compatibility_date = "2025-07-22"
 
-[site]
-bucket = "./dist" 
+[assets]
+directory = "./dist" 
