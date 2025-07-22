@@ -24,8 +24,20 @@ fs.mkdirSync(outFull, { recursive: true });
 for (const file of filesToCopy) {
   const srcPath = path.resolve(__dirname, file.src);
   const destPath = path.resolve(outFull, file.dest);
-  fs.copyFileSync(srcPath, destPath);
-  console.log(`Copied ${file.src} -> ${path.join(outDir, file.dest)}`);
+  if (file.dest === 'background.js') {
+    // Inject API_BASE
+    let content = fs.readFileSync(srcPath, 'utf8');
+    const apiBase = process.env.API_BASE || 'http://localhost:8787';
+    content = content.replace(
+      /const apiBase = [^;]+;/,
+      `const apiBase = '${apiBase}'; // Injected by build.cjs`
+    );
+    fs.writeFileSync(destPath, content);
+    console.log(`Injected API_BASE and copied ${file.src} -> ${path.join(outDir, file.dest)}`);
+  } else {
+    fs.copyFileSync(srcPath, destPath);
+    console.log(`Copied ${file.src} -> ${path.join(outDir, file.dest)}`);
+  }
 }
 
 console.log('Tekcop extension bundled in', outDir); 
