@@ -11,7 +11,7 @@
       "128": "app_128.png"
     },
     "default_title": "Save to Tekcop",
-    "default_popup": "popup.html"
+    "default_popup": ""
   },
   "permissions": [
     "activeTab",
