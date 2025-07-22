@@ -13,9 +13,16 @@
     "default_title": "Save to Tekcop",
     "default_popup": ""
   },
+  "icons": {
+    "16": "app_16.png",
+    "32": "app_32.png",
+    "48": "app_48.png",
+    "128": "app_128.png"
+  },
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "notifications"
   ],
   "background": {
     "service_worker": "background.js"

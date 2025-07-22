@@ -5,7 +5,7 @@ chrome.action.onClicked.addListener((tab) => {
     if (!tekcop_token) {
       chrome.notifications.create({
         type: 'basic',
-        iconUrl: 'public/tekcop.svg',
+        iconUrl: chrome.runtime.getURL('app_48.png'),
         title: 'Tekcop',
         message: 'Please log in via the Tekcop extension popup.'
       });
@@ -28,7 +28,7 @@ chrome.action.onClicked.addListener((tab) => {
         const data = await res.json();
         chrome.notifications.create({
           type: 'basic',
-          iconUrl: 'public/tekcop.svg',
+          iconUrl: chrome.runtime.getURL('app_48.png'),
           title: 'Tekcop',
           message: 'Page saved to bookmarks!'
         });
@@ -37,7 +37,7 @@ chrome.action.onClicked.addListener((tab) => {
         let msg = err.message === 'Unauthorized' ? 'Please log in again via the Tekcop popup.' : 'Failed to save page.';
         chrome.notifications.create({
           type: 'basic',
-          iconUrl: 'public/tekcop.svg',
+          iconUrl: chrome.runtime.getURL('app_48.png'),
           title: 'Tekcop',
           message: msg
         });
