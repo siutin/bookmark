@@ -26,6 +26,9 @@ function App() {
   const [authInvite, setAuthInvite] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  // Inline editing state
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<Partial<Bookmark>>({});
 
   const version = import.meta.env.PACKAGE_VERSION;
 
@@ -223,6 +226,47 @@ function App() {
     }
     if (url) {
       setForm(f => ({ ...f, url, title: title || f.title || '' }));
+    }
+  };
+
+  // Inline edit handlers
+  const startEdit = (bm: Bookmark) => {
+    setEditingId(bm.id);
+    setEditForm({ title: bm.title, url: bm.url, description: bm.description || '' });
+  };
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditForm({});
+  };
+  const saveEdit = async (bm: Bookmark) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/bookmark/${bm.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(editForm),
+      });
+      if (res.status === 401) {
+        setToken('');
+        localStorage.removeItem('jwt_token');
+        throw new Error('Unauthorized');
+      }
+      if (!res.ok) throw new Error('Failed to update');
+      setEditingId(null);
+      setEditForm({});
+      fetchBookmarks();
+    } catch (err: any) {
+      if (err.message === 'Unauthorized') {
+        setError('Session expired. Please log in again.');
+      } else {
+        setError('Failed to update bookmark');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -437,12 +481,71 @@ function App() {
                 key={bm.id}
                 style={styles.item}
               >
-                <div style={styles.itemRow}>
-                  <span style={{ fontWeight: 600, fontSize: 17, cursor: 'pointer' }} onClick={() => handleEdit(bm)}>{bm.title}</span>
-                  <button style={styles.deleteBtn} onClick={() => handleDelete(bm.id)} disabled={loading}>Delete</button>
-                </div>
-                <a href={bm.url} target="_blank" rel="noopener noreferrer" style={{ color: '#06c', textDecoration: 'underline', fontSize: 14 }}>{bm.url}</a>
-                {bm.description && <span style={{ fontSize: 13, color: '#555' }}>{bm.description}</span>}
+                {editingId === bm.id ? (
+                  <form
+                    style={{ ...styles.form, margin: 0, gap: 10 }}
+                    onSubmit={e => { e.preventDefault(); saveEdit(bm); }}
+                  >
+                    <input
+                      style={styles.input}
+                      placeholder="Title"
+                      value={editForm.title || ''}
+                      onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))}
+                      required
+                      autoFocus
+                    />
+                    <input
+                      style={styles.input}
+                      placeholder="URL"
+                      value={editForm.url || ''}
+                      onChange={e => setEditForm(f => ({ ...f, url: e.target.value }))}
+                      required
+                    />
+                    <input
+                      style={styles.input}
+                      placeholder="Description (optional)"
+                      value={editForm.description || ''}
+                      onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
+                    />
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button style={styles.button} type="submit" disabled={loading}>Save</button>
+                      <button
+                        type="button"
+                        style={{ ...styles.button, background: '#aaa', color: '#222' }}
+                        onClick={cancelEdit}
+                        disabled={loading}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div style={styles.itemRow}>
+                      <span style={{ fontWeight: 600, fontSize: 17 }}>{bm.title}</span>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          type="button"
+                          style={{ background: '#eee', color: '#222', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 14, cursor: 'pointer' }}
+                          onClick={() => startEdit(bm)}
+                          disabled={loading}
+                        >
+                          Edit
+                        </button>
+                        <button style={styles.deleteBtn} onClick={() => handleDelete(bm.id)} disabled={loading}>Delete</button>
+                      </div>
+                    </div>
+                    <a
+                      href={bm.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: '#06c', textDecoration: 'underline', fontSize: 14 }}
+                    >
+                      {bm.url}
+                    </a>
+                    {bm.description && <span style={{ fontSize: 13, color: '#555' }}>{bm.description}</span>}
+                  </>
+                )}
               </div>
             ))
           )}
