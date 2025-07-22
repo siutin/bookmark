@@ -25,6 +25,7 @@ function App() {
   const [authPass, setAuthPass] = useState('');
   const [authInvite, setAuthInvite] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const version = import.meta.env.PACKAGE_VERSION;
 
@@ -197,6 +198,34 @@ function App() {
     localStorage.removeItem('jwt_token');
   };
 
+  // Drag and drop handlers for the form
+  const handleFormDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+  const handleFormDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+  const handleFormDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    // Try to get URL from dropped data
+    const url = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
+    let title = '';
+    // Try to get title from HTML if available
+    const html = e.dataTransfer.getData('text/html');
+    if (html) {
+      const match = html.match(/<a [^>]*>(.*?)<\/a>/i);
+      if (match) {
+        title = match[1];
+      }
+    }
+    if (url) {
+      setForm(f => ({ ...f, url, title: title || f.title || '' }));
+    }
+  };
+
   // Responsive, full-screen minimalist styles
   const buttonStyle = {
     padding: '10px 0',
@@ -348,7 +377,18 @@ function App() {
           </h2>
           <button style={styles.logoutBtn} onClick={handleLogout}>Logout</button>
       </div>
-        <form style={styles.form} onSubmit={handleSubmit}>
+        <form
+          style={{
+            ...styles.form,
+            outline: isDragging ? '2px solid #3182ce' : undefined,
+            outlineOffset: isDragging ? 2 : undefined,            
+            transition: 'outline 0.2s',
+          }}
+          onSubmit={handleSubmit}
+          onDragOver={handleFormDragOver}
+          onDragLeave={handleFormDragLeave}
+          onDrop={handleFormDrop}
+        >
           <input
             style={styles.input}
             placeholder="Title"
