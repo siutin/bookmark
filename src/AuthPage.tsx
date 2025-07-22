@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { login as apiLogin, register as apiRegister } from './api';
+import bookmarkLogo from '../public/bookmark.svg';
 
 interface AuthPageProps {
   setToken: (token: string) => void;
@@ -14,53 +14,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ setToken, loading, setLoading }) =>
   const [authInvite, setAuthInvite] = useState('');
   const [authError, setAuthError] = useState<string | null>(null);
 
-  const styles = {
-    root: {
-      minHeight: '100vh',
-      width: '100vw',
-      background: 'linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%)',
-      margin: 0,
-      padding: 0,
-      boxSizing: 'border-box' as const,
-      display: 'flex',
-      flexDirection: 'column' as const,
-      alignItems: 'center',
-    },
-    authBox: {
-      maxWidth: 340,
-      margin: '4rem auto',
-      background: '#fff',
-      borderRadius: 16,
-      boxShadow: '0 2px 24px #0002',
-      padding: '2rem 1.5rem',
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: 16,
-      alignItems: 'stretch',
-    },
-    authTitle: { textAlign: 'center', margin: 0, color: '#222' },
-    input: {
-      padding: 10,
-      border: '1px solid #ccc',
-      borderRadius: 8,
-      fontSize: 16,
-      marginBottom: 4,
-    },
-    button: {
-      padding: '10px 0',
-      border: 'none',
-      borderRadius: 8,
-      background: '#222',
-      color: '#fff',
-      fontWeight: 600,
-      cursor: 'pointer',
-      marginTop: 8,
-      fontSize: 16,
-    },
-    authSwitch: { color: '#06c', background: 'none', border: 'none', cursor: 'pointer', fontSize: 15, marginTop: 8 },
-    error: { color: 'crimson', margin: '0.5rem 0' },
-  } as const;
-
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError(null);
@@ -71,10 +24,12 @@ const AuthPage: React.FC<AuthPageProps> = ({ setToken, loading, setLoading }) =>
     setLoading(true);
     try {
       if (authMode === 'register') {
-        await apiRegister(authUser, authPass, authInvite);
+        // @ts-ignore
+        await import('./api').then(api => api.register(authUser, authPass, authInvite));
       }
       // Login
-      const data = await apiLogin(authUser, authPass);
+      // @ts-ignore
+      const data = await import('./api').then(api => api.login(authUser, authPass));
       setToken(data.token);
       setAuthUser('');
       setAuthPass('');
@@ -88,49 +43,57 @@ const AuthPage: React.FC<AuthPageProps> = ({ setToken, loading, setLoading }) =>
   };
 
   return (
-    <div style={styles.root}>
-      <form style={styles.authBox} onSubmit={handleAuth}>
-        <h2 style={styles.authTitle}>{authMode === 'login' ? 'Login' : 'Register'}</h2>
-        <input
-          style={styles.input}
-          placeholder="Username"
-          value={authUser}
-          onChange={e => setAuthUser(e.target.value)}
-          autoFocus
-          required
-        />
-        <input
-          style={styles.input}
-          placeholder="Password"
-          type="password"
-          value={authPass}
-          onChange={e => setAuthPass(e.target.value)}
-          required
-        />
-        {authMode === 'register' && (
+    <div style={{ minHeight: '100vh', background: 'var(--tekcop-bg)' }}>
+      <div className="topbar">
+        <span className="topbar-logo">
+          <img src={bookmarkLogo} alt="Tekcop Logo" style={{ width: 36, height: 36 }} />
+          Tekcop Login
+        </span>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <form className="card" style={{ maxWidth: 360, width: '100%' }} onSubmit={handleAuth}>
+          <h2 style={{ textAlign: 'center', fontWeight: 700, fontSize: 28, marginBottom: 24 }}>
+            {authMode === 'login' ? 'Sign in to Tekcop' : 'Create your Tekcop account'}
+          </h2>
           <input
-            style={styles.input}
-            placeholder="Invite Code"
-            value={authInvite}
-            onChange={e => setAuthInvite(e.target.value)}
+            placeholder="Username"
+            value={authUser}
+            onChange={e => setAuthUser(e.target.value)}
+            autoFocus
             required
           />
-        )}
-        <button style={styles.button} type="submit" disabled={loading}>
-          {authMode === 'login' ? 'Login' : 'Register'}
-        </button>
-        <button
-          type="button"
-          style={styles.authSwitch}
-          onClick={() => {
-            setAuthMode(authMode === 'login' ? 'register' : 'login');
-            setAuthError(null);
-          }}
-        >
-          {authMode === 'login' ? 'No account? Register' : 'Already have an account? Login'}
-        </button>
-        {authError && <div style={styles.error}>{authError}</div>}
-      </form>
+          <input
+            placeholder="Password"
+            type="password"
+            value={authPass}
+            onChange={e => setAuthPass(e.target.value)}
+            required
+          />
+          {authMode === 'register' && (
+            <input
+              placeholder="Invite Code"
+              value={authInvite}
+              onChange={e => setAuthInvite(e.target.value)}
+              required
+            />
+          )}
+          <button type="submit" disabled={loading} style={{ marginTop: 12 }}>
+            {authMode === 'login' ? 'Login' : 'Register'}
+          </button>
+          <button
+            type="button"
+            className="topbar-btn"
+            style={{ background: 'none', color: 'var(--tekcop-red)', marginTop: 8, boxShadow: 'none' }}
+            onClick={() => {
+              setAuthMode(authMode === 'login' ? 'register' : 'login');
+              setAuthError(null);
+            }}
+          >
+            {authMode === 'login' ? 'No account? Register' : 'Already have an account? Login'}
+          </button>
+          {authError && <div style={{ color: 'crimson', margin: '0.5rem 0', textAlign: 'center' }}>{authError}</div>}
+        </form>
+      </div>
     </div>
   );
 };

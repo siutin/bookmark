@@ -1,8 +1,5 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100vw;
 }
 
 .logo {
@@ -39,4 +36,71 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Tekcop-style top bar and card utility classes */
+.topbar {
+  width: 100%;
+  background: #fff;
+  box-shadow: 0 2px 8px #0001;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5em 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 1.5em;
+  font-weight: 700;
+  color: var(--tekcop-red);
+}
+.topbar-btn {
+  background: var(--tekcop-red);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 0.5em 1.2em;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.topbar-btn:hover {
+  background: var(--tekcop-teal);
+}
+
+.card {
+  background: var(--tekcop-card);
+  border-radius: var(--tekcop-radius);
+  box-shadow: var(--tekcop-shadow);
+  padding: 2em 1.5em;
+  margin: 1.5em 0;
+}
+
+.fab {
+  position: fixed;
+  right: 2.5em;
+  bottom: 2.5em;
+  background: var(--tekcop-red);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 1em;
+  box-shadow: 0 4px 16px #0002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  transition: background 0.2s;
+}
+.fab:hover {
+  background: var(--tekcop-teal);
 }
