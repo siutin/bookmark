@@ -5,7 +5,8 @@
   "main": "vite.config.js",
   "scripts": {
     "build": "vite build",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "dev": "vite build --watch --mode development"
   },
   "devDependencies": {
     "vite": "^5.2.0",
