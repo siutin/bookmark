@@ -1,4 +1,4 @@
-const apiBase = 'http://localhost:8787'; // Change if needed
+const apiBase = import.meta.env.VITE_API_BASE;
 
 const loginSection = document.getElementById('login-section');
 const bookmarkSection = document.getElementById('bookmark-section');
